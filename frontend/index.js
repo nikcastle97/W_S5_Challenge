@@ -9,8 +9,17 @@ async function sprintChallenge5() { // Note the async keyword so you can use `aw
   // ❗ Use the variables `mentors` and `learners` to store the data.
   // ❗ Use the await keyword when using axios.
 
-  let mentors = [] // fix this
-  let learners = [] // fix this
+  let mentors = await axios.get(`http://localhost:3003/api/mentors`)
+  let m = mentors.data
+  let learners = await axios.get(`http://localhost:3003/api/learners`)
+  let l = learners.data
+
+  // console.log(`
+  //   Learners Data Ponit => `,
+  //   l);
+  // console.log(`
+  //   Mentors Data Ponit => `,
+  //   m);
 
   // 👆 ==================== TASK 1 END ====================== 👆
 
@@ -29,16 +38,28 @@ async function sprintChallenge5() { // Note the async keyword so you can use `aw
   //   ]`
   // }
 
+  let fData = []
+  l.forEach(learner => {
+    const rez = {
+      ...learner,
+      mentors: learner.mentors.map(mentorID => {
+        let mentor = m.find(mentorObj => mentorObj.id == mentorID)
+        return mentor.firstName + ` ` + mentor.lastName
+      })
+    }
+    fData.push(rez)
+  })
+
   // 👆 ==================== TASK 2 END ====================== 👆
 
-  const cardsContainer = document.querySelector('.cards')
-  const info = document.querySelector('.info')
-  info.textContent = 'No learner is selected'
+  const cardsContainer = document.querySelector(`.cards`)
+  const info = document.querySelector(`.info`)
+  info.textContent = `No learner is selected`
 
 
   // 👇 ==================== TASK 3 START ==================== 👇
 
-  for (let learner of learners) { // looping over each learner object
+  fData.forEach(learner => { // looping over each learner object
 
     // 🧠 Flesh out the elements that describe each learner
     // ❗ Give the elements below their (initial) classes, textContent and proper nesting.
@@ -47,11 +68,30 @@ async function sprintChallenge5() { // Note the async keyword so you can use `aw
     // ❗ Fill each <li> with a mentor name, and append it to the <ul> mentorList.
     // ❗ Inspect the mock site closely to understand what the initial texts and classes look like!
 
-    const card = document.createElement('div')
-    const heading = document.createElement('h3')
-    const email = document.createElement('div')
-    const mentorsHeading = document.createElement('h4')
-    const mentorsList = document.createElement('ul')
+    const card = document.createElement(`div`)
+    card.classList.add(`card`)
+
+    const heading = document.createElement(`h3`)
+    card.appendChild(heading)
+    heading.textContent = learner.fullName
+
+    const email = document.createElement(`div`)
+    card.appendChild(email)
+    email.innerText = learner.email
+
+    const mentorsHeading = document.createElement(`h4`)
+    card.appendChild(mentorsHeading)
+    mentorsHeading.classList.add(`closed`)
+    mentorsHeading.textContent = `Mentors`
+
+    const mentorsList = document.createElement(`ul`)
+    card.appendChild(mentorsList)
+
+    for ( let i = 0; i < learner.mentors.length; i++) {
+      let li = document.createElement(`li`)
+      li.textContent = learner.mentors[i]
+      mentorsList.appendChild(li)
+    }
 
     // 👆 ==================== TASK 3 END ====================== 👆
 
@@ -97,7 +137,7 @@ async function sprintChallenge5() { // Note the async keyword so you can use `aw
         }
       }
     })
-  }
+  })
 
   const footer = document.querySelector('footer')
   const currentYear = new Date().getFullYear()
